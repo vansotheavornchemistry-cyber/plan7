@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <title>កម្មវិធីគម្រោងសកម្មភាពប្រចាំថ្ងៃ</title>
+    <!-- ប្រើប្រាស់ Tailwind CSS សម្រាប់ការរចនា -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: #f3f4f6; /* Gray-100 */
+        }
+        /* Custom scrollbar សម្រាប់បញ្ជីសកម្មភាព */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }b
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center md:p-4 bg-gray-100">
+
+    <!-- App Container -->
+    <div class="bg-white md:rounded-2xl md:shadow-xl w-full max-w-lg overflow-hidden flex flex-col h-[100dvh] md:h-auto md:max-h-[85vh]">
+        
+        <!-- ផ្នែកខាងលើ (Header) -->
+        <div class="bg-blue-600 p-5 md:p-6 text-white text-center shadow-md md:shadow-none z-10">
+            <h2 class="text-xl md:text-2xl font-bold mb-3">ផែនការប្រចាំថ្ងៃរបស់ខ្ញុំ</h2>
+            
+            <!-- ឧបករណ៍ផ្លាស់ប្តូរថ្ងៃ (Date Navigation) -->
+            <div class="flex items-center justify-between bg-blue-700/50 rounded-lg p-2 backdrop-blur-sm">
+                <button onclick="changeDate(-1)" class="p-2 hover:bg-blue-500 rounded-lg transition-colors focus:outline-none active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <div class="flex flex-col">
+                    <span id="dateTitle" class="font-bold text-sm md:text-base">ថ្ងៃនេះ</span>
+                    <span id="dateSubtitle" class="text-[10px] md:text-xs text-blue-200"></span>
+                </div>
+                <button onclick="changeDate(1)" class="p-2 hover:bg-blue-500 rounded-lg transition-colors focus:outline-none active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ផ្នែកបញ្ចូលទិន្នន័យ (Input Section) -->
+        <div class="p-4 md:p-6 bg-gray-50 border-b border-gray-100">
+            <!-- សារលោតប្រាប់កំហុស (Error Message) -->
+            <div id="errorMessage" class="hidden mb-3 text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200 text-center">
+                សូមបញ្ចូលឈ្មោះសកម្មភាពរបស់អ្នក!
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <!-- ប្រអប់បញ្ចូលឈ្មោះសកម្មភាព -->
+                <input type="text" id="taskInput" placeholder="តើអ្នកចង់ធ្វើអ្វីថ្ងៃនេះ?" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <!-- ប្រអប់ជ្រើសរើសពេលវេលា (ប្តូរមកត្រឹមតែម៉ោង ព្រោះថ្ងៃរើសនៅខាងលើរួចហើយ) -->
+                    <input type="time" id="taskTime" class="flex-1 p-3 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                    
+                    <!-- ប្រអប់ជ្រើសរើសអាទិភាព -->
+                    <select id="taskPriority" class="p-3 border border-gray-300 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer bg-white">
+                        <option value="low">ធម្មតា</option>
+                        <option value="medium">មធ្យម</option>
+                        <option value="high">បន្ទាន់</option>
+                    </select>
+                </div>
+                
+                <!-- ប៊ូតុងបន្ថែម -->
+                <button onclick="addTask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium p-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    បន្ថែមសកម្មភាព
+                </button>
+            </div>
+        </div>
+
+        <!-- ផ្នែកបង្ហាញបញ្ជី (List Section) -->
+        <div class="p-4 md:p-6 flex-1 overflow-y-auto custom-scrollbar bg-white pb-20 md:pb-6">
+            <ul id="taskList" class="space-y-3">
+                <!-- សកម្មភាពនានានឹងបង្ហាញនៅទីនេះ -->
+            </ul>
+            
+            <!-- បង្ហាញនៅពេលគ្មានសកម្មភាព -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-10 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 opacity-50"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <p>មិនមានសកម្មភាពទេ ពេលនេះ</p>
+            </div>
+        </div>
+        
+        <!-- ផ្នែកខាងក្រោម (Footer) បង្ហាញឈ្មោះអ្នករៀបចំ -->
+        <div class="py-3 px-6 bg-gray-50 border-t border-gray-100 text-center text-xs text-gray-400">
+            រៀបចំដោយ៖ <span class="font-semibold text-gray-500">វ៉ាន សុទ្ធាវ័ន្ត</span>
+        </div>
+    </div>
+
+    <!-- ផ្នែក JavaScript សម្រាប់ដំណើរការ និងផ្ទុកទិន្នន័យ -->
+    <script>
+        // អថេរសម្រាប់ផ្ទុកបញ្ជីសកម្មភាព
+        let tasks = [];
+        
+        // អថេរសម្រាប់កំណត់ថ្ងៃបច្ចុប្បន្នដែលកំពុងមើល
+        let viewDate = new Date();
+
+        // ពេលបើកកម្មវិធី ឲ្យទាញទិន្នន័យពី Local Storage មកបង្ហាញ
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTasks = localStorage.getItem('myDailyTasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+                // តម្រូវទិន្នន័យចាស់ៗឲ្យមានថ្ងៃខែច្បាស់លាស់
+                tasks = tasks.map(task => {
+                    if (!task.date && task.time) {
+                        return { ...task, date: task.time.split('T')[0], time: task.time.split('T')[1] || '' };
+                    }
+                    return task;
+                });
+            }
+            updateDateDisplay();
+            renderTasks();
+        });
+
+        // អនុគមន៍សម្រាប់រក្សាទុកទិន្នន័យទៅ Local Storage
+        function saveTasks() {
+            localStorage.setItem('myDailyTasks', JSON.stringify(tasks));
+        }
+
+        // អនុគមន៍សម្រាប់ប្តូរថ្ងៃ (ឆ្វេង/ស្តាំ)
+        function changeDate(daysOffset) {
+            viewDate.setDate(viewDate.getDate() + daysOffset);
+            updateDateDisplay();
+            renderTasks();
+        }
+
+        // អនុគមន៍សម្រាប់ Format ថ្ងៃជា YYYY-MM-DD
+        function getFormatDateString(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // អនុគមន៍សម្រាប់បង្ហាញឈ្មោះថ្ងៃនៅលើ Header
+        function updateDateDisplay() {
+            const titleEl = document.getElementById('dateTitle');
+            const subtitleEl = document.getElementById('dateSubtitle');
+            
+            const today = new Date();
+            const todayStr = getFormatDateString(today);
+            const viewStr = getFormatDateString(viewDate);
+            
+            // កំណត់ចំណងជើង (Title)
+            if (viewStr === todayStr) {
+                titleEl.textContent = "ថ្ងៃនេះ";
+            } else {
+                const tomorrow = new Date();
+                tomorrow.setDate(today.getDate() + 1);
+                const yesterday = new Date();
+                yesterday.setDate(today.getDate() - 1);
+                
+                if (viewStr === getFormatDateString(tomorrow)) {
+                    titleEl.textContent = "ថ្ងៃស្អែក";
+                } else if (viewStr === getFormatDateString(yesterday)) {
+                    titleEl.textContent = "ម្សិលមិញ";
+                } else {
+                    titleEl.textContent = "កាលវិភាគ";
+                }
+            }
+            
+            // កំណត់ថ្ងៃខែឆ្នាំលម្អិត (Subtitle)
+            subtitleEl.textContent = viewDate.toLocaleDateString('km-KH', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+        }
+
+        // អនុគមន៍សម្រាប់បន្ថែមសកម្មភាព
+        function addTask() {
+            const input = document.getElementById("taskInput");
+            const timeInput = document.getElementById("taskTime");
+            const priorityInput = document.getElementById("taskPriority");
+            const errorMsg = document.getElementById("errorMessage");
+            
+            const taskText = input.value.trim();
+            
+            // ត្រួតពិនិត្យបើគ្មានការបញ្ចូលអត្ថបទ
+            if (taskText === "") {
+                errorMsg.classList.remove("hidden");
+                setTimeout(() => errorMsg.classList.add("hidden"), 3000); // លាក់វិញក្រោយ ៣ វិនាទី
+                return;
+            }
+
+            // បង្កើត Object សកម្មភាពថ្មី
+            const newTask = {
+                id: Date.now(), // បង្កើត ID ផ្សេងៗគ្នាដោយប្រើពេលវេលា
+                text: taskText,
+                time: timeInput.value,
+                date: getFormatDateString(viewDate), // ផ្ទុកតាមថ្ងៃដែលកំពុងមើល
+                priority: priorityInput.value,
+                completed: false
+            };
+
+            // បញ្ចូលទៅក្នុង Array 
+            tasks.push(newTask);
+            
+            // រក្សាទុក និង បង្ហាញឡើងវិញ
+            saveTasks();
+            renderTasks();
+
+            // លុបអត្ថបទក្នុងប្រអប់បន្ទាប់ពីបញ្ចូលរួច
+            input.value = "";
+            timeInput.value = "";
+            priorityInput.value = "low";
+        }
+
+        // អនុគមន៍សម្រាប់ប្តូរស្ថានភាពធ្វើរួច/មិនទាន់រួច (Toggle Complete)
+        function toggleTask(id, event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            tasks = tasks.map(task => {
+                if (task.id === id) {
+                    return { ...task, completed: !task.completed };
+                }
+                return task;
+            });
+            saveTasks();
+            renderTasks();
+        }
+
+        // អនុគមន៍សម្រាប់លុបសកម្មភាព
+        function deleteTask(id, event) {
+            event.stopPropagation(); // ការពារកុំឲ្យចុចលុប តែវាទៅដំណើរការ toggleTask ដែរ
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        // អនុគមន៍សម្រាប់បង្ហាញបញ្ជីនៅលើអេក្រង់ (Render)
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            const emptyState = document.getElementById("emptyState");
+            
+            // សម្អាតបញ្ជីចាស់
+            taskList.innerHTML = "";
+
+            // ចម្រាញ់យកតែសកម្មភាពណាដែលត្រូវនឹងថ្ងៃដែលកំពុងមើល
+            const currentViewDateStr = getFormatDateString(viewDate);
+            const dailyTasks = tasks.filter(task => task.date === currentViewDateStr);
+
+            // បង្ហាញរូបភាពបើគ្មានសកម្មភាព
+            if (dailyTasks.length === 0) {
+                emptyState.classList.remove("hidden");
+                emptyState.classList.add("flex");
+            } else {
+                emptyState.classList.add("hidden");
+                emptyState.classList.remove("flex");
+            }
+
+            // តម្រៀបសកម្មភាព (អត់ទាន់រួចនៅខាងលើ, រួចហើយនៅខាងក្រោម)
+            const sortedTasks = [...dailyTasks].sort((a, b) => a.completed - b.completed);
+
+            // បង្កើត HTML សម្រាប់សកម្មភាពនីមួយៗ
+            sortedTasks.forEach(task => {
+                const li = document.createElement("li");
+                
+                // កំណត់ពណ៌តាមកម្រិតអាទិភាព
+                let priorityClass = "";
+                let priorityText = "";
+                if (task.priority === 'high') {
+                    priorityClass = "bg-red-100 text-red-800 border-red-200";
+                    priorityText = "បន្ទាន់";
+                } else if (task.priority === 'medium') {
+                    priorityClass = "bg-orange-100 text-orange-800 border-orange-200";
+                    priorityText = "មធ្យម";
+                } else {
+                    priorityClass = "bg-green-100 text-green-800 border-green-200";
+                    priorityText = "ធម្មតា";
+                }
+
+                // កំណត់ Style ពេលធ្វើរួច
+                const itemOpacity = task.completed ? "opacity-50 bg-gray-50" : "bg-white";
+                const textStyle = task.completed ? "line-through text-gray-500" : "text-gray-800";
+                const checkboxColor = task.completed ? "bg-green-500 border-green-500" : "border-gray-300";
+
+                // Format ពេលវេលា (បើមាន)
+                let timeDisplay = "";
+                if (task.time) {
+                    // បម្លែងម៉ោងពី 24h ទៅ 12h ជាភាសាខ្មែរ
+                    const [hourStr, minStr] = task.time.split(':');
+                    let hour = parseInt(hourStr);
+                    const period = hour >= 12 ? 'ល្ងាច/យប់' : 'ព្រឹក';
+                    hour = hour % 12 || 12;
+                    
+                    timeDisplay = `<div class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        ម៉ោង ${hour}:${minStr} ${period}
+                    </div>`;
+                }
+
+                // ដក cursor-pointer និង li.onclick ចេញ ដើម្បីឲ្យអ្នកប្រើចុចលើប៊ូតុងផ្ទាល់
+                // កែប្រែទម្រង់ឲ្យបត់បែនលើទូរសព្ទ (flex-col លើទូរសព្ទ, flex-row លើកុំព្យូទ័រ)
+                li.className = `group flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 border border-gray-100 rounded-xl shadow-sm transition-all hover:shadow-md gap-3 ${itemOpacity}`;
+                
+                li.innerHTML = `
+                    <div class="flex items-start gap-3 md:gap-4 w-full sm:w-auto flex-1">
+                        <!-- Checkbox ធ្វើដោយដៃ (Custom) -->
+                        <div class="mt-0.5 md:mt-1 flex-shrink-0 w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${checkboxColor} flex items-center justify-center transition-colors">
+                            ${task.completed ? '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
+                        </div>
+                        
+                        <!-- ព័ត៌មានសកម្មភាព -->
+                        <div class="flex-1 min-w-0">
+                            <span class="font-medium text-sm md:text-base ${textStyle} block break-words">${task.text}</span>
+                            ${timeDisplay}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-end gap-2 w-full sm:w-auto border-t border-gray-50 sm:border-0 pt-2 sm:pt-0">
+                        <!-- ស្លាកអាទិភាព (Priority Badge) -->
+                        <span class="text-[10px] px-2 py-1 rounded-full border font-medium ${priorityClass}">
+                            ${priorityText}
+                        </span>
+                        
+                        <!-- ប៊ូតុង បានធ្វើរួចរាល់ / មិនទាន់បានធ្វើ -->
+                        <button onclick="toggleTask(${task.id}, event)" class="px-3 py-1.5 text-[11px] md:text-xs font-medium rounded-lg transition-colors focus:outline-none whitespace-nowrap active:scale-95 ${task.completed ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' : 'bg-green-100 text-green-700 hover:bg-green-200'}">
+                            ${task.completed ? 'មិនទាន់បានធ្វើ' : 'បានធ្វើរួចរាល់'}
+                        </button>
+                        
+                        <!-- ប៊ូតុងលុប -->
+                        <button onclick="deleteTask(${task.id}, event)" class="p-1.5 md:p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors focus:outline-none active:scale-90">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    </div>
+                `;
+                
+                taskList.appendChild(li);
+            });
+        }
+
+        // អនុញ្ញាតឲ្យចុច Enter ដើម្បីបញ្ចូល
+        document.getElementById("taskInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addTask();
+            }
+        });
+    </script>
+</body>
+</html>
